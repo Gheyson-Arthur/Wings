@@ -1,4 +1,4 @@
-# Wings
+#  🚀 Wings
 
 <p align="center">
   <img
@@ -22,19 +22,17 @@
   />
 </p>
 
-## 🖥️ XYZ
-
 ## 📄 Descrição
 
-Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.
+Wings é um jogo 2D feito em C, no qual controlamos uma nave capaz de destruir asteróides que entram em nosso caminho. Com jogabilidade fácil e interativa, devemos estar atentos ao posicionamento de nossa nave e à rapidez que os asteróides se aproximam.
 
 ## 🎲 Objetivo do Jogo
 
-Conquistar pontos destruindo asteroides ao longo da fase
+Destruir o máximo de asteróides possível! Dessa forma, conquistando pontos ao longo da fase e subindo no Ranking de Piloto.
 
 ## 🕹️ Como Jogar
 
-
+Com gameplay simples, no Wings basta se movimentar utilizando o 'W' e 'S' para alcançar todos os espaços da tela a fim de ser capaz de destruir todos os asteróides que se encaminham em sua direção.
 
 ## ♟️ Executando o Jogo
 
@@ -55,20 +53,15 @@ Para executar o Pong2, siga estas etapas:
 
 <ul>
   <li>
-    <a href="https://github.com/">Arhur Capistrano</a> -
+    <a href="https://github.com/ArthurCapistrano">Arhur Capistrano</a> -
     asc@cesar.school 📩
   </li>
   <li>
-    <a href="https://github.com/">Gheyson Melo</a> -
-    g@cesar.school 📩
+    <a href="https://github.com/gheysonmelo">Gheyson Melo</a> -
+    gycm@cesar.school 📩
   </li>
   <li>
     <a href="https://github.com/">Rafael Danzi</a> -
-    r@cesar.school 📩
+    rdft@cesar.school 📩
   </li>
 </ul>
-
-
-## Licença
-
-Lorem Ipsum has been the industry's standard
