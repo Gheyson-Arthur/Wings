@@ -10,27 +10,6 @@ int incX = 1, incY = 1; // Incrementos para o movimento do texto
 int shipY = 12; // Coordenada Y inicial da nave
 char *shipChar = " <:*_|> "; // Caractere que representa a nave
 
-
-
-void printKey(int ch)
-{
-    screenSetColor(YELLOW, DARKGRAY); // Define as cores do texto
-    screenGotoxy(35, 22); // Move o cursor para uma posição específica
-    printf("Key code :");
-
-    screenGotoxy(34, 23); // Move o cursor para outra posição
-    printf("            "); // Limpa a área de exibição do código da tecla
-
-    if (ch == 27) screenGotoxy(36, 23); // Se a tecla é 'ESC', ajusta a posição
-    else screenGotoxy(39, 23); // Caso contrário, ajusta a posição
-
-    printf("%d ", ch); // Imprime o código da tecla
-    while (keyhit()) // Enquanto houver teclas pressionadas
-    {
-        printf("%d ", readch()); // Imprime os códigos das teclas pressionadas
-    }
-}
-
 // Função para imprimir a nave na posição atual
 void printShip()
 {
@@ -86,7 +65,6 @@ int main()
                     printShip(); // Imprime a nave na nova posição
                 }
             }
-            printKey(ch); // Imprime o código da tecla
             screenUpdate(); // Atualiza a tela
         }
 
