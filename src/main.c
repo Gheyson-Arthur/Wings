@@ -1,88 +1,100 @@
-/**
- * main.h
- * Created on Aug, 23th 2023
- * Author: Tiago Barros
- * Based on "From C to C++ course - 2002"
-*/
+#include <string.h> // Biblioteca para manipulação de strings
 
-#include <string.h>
+#include "screen.h" // Inclui a biblioteca de funções de tela
+#include "keyboard.h" // Inclui a biblioteca de funções de teclado
+#include "timer.h" // Inclui a biblioteca de funções de temporizador
 
-#include "screen.h"
-#include "keyboard.h"
-#include "timer.h"
+int x = 34, y = 12; // Coordenadas iniciais do texto
+int incX = 1, incY = 1; // Incrementos para o movimento do texto
 
-int x = 34, y = 12;
-int incX = 1, incY = 1;
+int shipY = 12; // Coordenada Y inicial da nave
+char *shipChar = " <:*_|> "; // Caractere que representa a nave
 
-void printHello(int nextX, int nextY)
-{
-    screenSetColor(CYAN, DARKGRAY);
-    screenGotoxy(x, y);
-    printf("           ");
-    x = nextX;
-    y = nextY;
-    screenGotoxy(x, y);
-    printf("Hello World");
-}
+
 
 void printKey(int ch)
 {
-    screenSetColor(YELLOW, DARKGRAY);
-    screenGotoxy(35, 22);
+    screenSetColor(YELLOW, DARKGRAY); // Define as cores do texto
+    screenGotoxy(35, 22); // Move o cursor para uma posição específica
     printf("Key code :");
 
-    screenGotoxy(34, 23);
-    printf("            ");
+    screenGotoxy(34, 23); // Move o cursor para outra posição
+    printf("            "); // Limpa a área de exibição do código da tecla
 
-    if (ch == 27) screenGotoxy(36, 23);
-    else screenGotoxy(39, 23);
+    if (ch == 27) screenGotoxy(36, 23); // Se a tecla é 'ESC', ajusta a posição
+    else screenGotoxy(39, 23); // Caso contrário, ajusta a posição
 
-    printf("%d ", ch);
-    while (keyhit())
+    printf("%d ", ch); // Imprime o código da tecla
+    while (keyhit()) // Enquanto houver teclas pressionadas
     {
-        printf("%d ", readch());
+        printf("%d ", readch()); // Imprime os códigos das teclas pressionadas
+    }
+}
+
+// Função para imprimir a nave na posição atual
+void printShip()
+{
+    screenSetColor(GREEN, DARKGRAY); // Define as cores da nave
+    screenGotoxy(MINX + 1, shipY); // Move o cursor para a posição da nave
+    printf("%s", shipChar); // Imprime o caractere da nave
+}
+
+// Função para limpar a nave da posição atual
+void clearShip()
+{
+    // Limpa uma área maior do que o caractere da nave para garantir que qualquer parte da nave seja apagada
+    for (int i = MINX + 1; i < MAXX; i++) { // Evita limpar as linhas da borda
+        for (int j = shipY - 1; j <= shipY + 1; j++) {
+            screenGotoxy(i, j);
+            printf(" ");
+        }
     }
 }
 
 int main() 
 {
-    static int ch = 0;
+    static int ch = 0; // Variável para armazenar o código da tecla pressionada
 
-    screenInit(1);
-    keyboardInit();
-    timerInit(50);
+    screenInit(1); // Inicializa a tela com bordas
+    keyboardInit(); // Inicializa o teclado
+    timerInit(50); // Inicializa o temporizador com atraso de 50 milissegundos
 
-    printHello(x, y);
-    screenUpdate();
+    printShip(); // Imprime a nave na posição inicial
+    screenUpdate(); // Atualiza a tela
 
-    while (ch != 10) //enter
+    while (ch != 10) // Enquanto a tecla 'Enter' não for pressionada
     {
-        // Handle user input
+        // Verifica se uma tecla foi pressionada
         if (keyhit()) 
         {
-            ch = readch();
-            printKey(ch);
-            screenUpdate();
+            ch = readch(); // Lê o código da tecla pressionada
+            if (ch == 'w' || ch == 'W') // Se a tecla é 'W', move a nave para cima
+            {
+                if (shipY > MINY + 1) // Garante que a nave não saia da tela
+                {
+                    clearShip(); // Limpa a posição atual da nave
+                    shipY--; // Move a nave para cima
+                    printShip(); // Imprime a nave na nova posição
+                }
+            }
+            else if (ch == 's' || ch == 'S') // Se a tecla é 'S', move a nave para baixo
+            {
+                if (shipY < MAXY - 1) // Garante que a nave não saia da tela
+                {
+                    clearShip(); // Limpa a posição atual da nave
+                    shipY++; // Move a nave para baixo
+                    printShip(); // Imprime a nave na nova posição
+                }
+            }
+            printKey(ch); // Imprime o código da tecla
+            screenUpdate(); // Atualiza a tela
         }
 
-        // Update game state (move elements, verify collision, etc)
-        if (timerTimeOver() == 1)
-        {
-            int newX = x + incX;
-            if (newX >= (MAXX -strlen("Hello World") -1) || newX <= MINX+1) incX = -incX;
-            int newY = y + incY;
-            if (newY >= MAXY-1 || newY <= MINY+1) incY = -incY;
-
-            printKey(ch);
-            printHello(newX, newY);
-
-            screenUpdate();
-        }
     }
 
-    keyboardDestroy();
-    screenDestroy();
-    timerDestroy();
+    keyboardDestroy(); // Restaura as configurações originais do teclado
+    screenDestroy(); // Restaura a tela ao estado normal
+    timerDestroy(); // Destrói o temporizador
 
-    return 0;
+    return 0; // Finaliza o programa
 }

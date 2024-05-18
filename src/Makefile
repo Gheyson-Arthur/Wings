@@ -1,8 +1,7 @@
 CC = gcc
 
-# Caminho para os arquivos de cabeçalho, se houver
-
-CFLAGS = -I./../include  
+# Caminho para os arquivos de cabeçalho
+CFLAGS = -I../include
 
 # Nome do arquivo executável final
 TARGET = Wings
@@ -21,7 +20,6 @@ $(TARGET): $(OBJ)
 %.o: %.c
 	$(CC) $(CFLAGS) -c $<
 
-
-# Limpa os arquivos gerados pelo makefile cutilizando o comando --> make clean
+# Limpa os arquivos gerados pelo makefile utilizando o comando --> make clean
 clean: 
-	rm -f pif_game main.o keyboard.o sreen.o timer.o screen.o
+	rm -f $(TARGET) $(OBJ)
