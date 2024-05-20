@@ -9,21 +9,43 @@
 
 void screenDrawBorders() 
 {
+    char hbc = BOX_HLINE;
+    char vbc = BOX_VLINE;
+
     screenClear();
+    screenBoxEnable();
 
-    for (int i = MINX + 1; i < MAXX; i++) {
+    screenGotoxy(MINX, MINY);
+    printf("%c", BOX_UPLEFT);
+
+    for (int i=MINX+1; i<MAXX; i++)
+    {
         screenGotoxy(i, MINY);
-        printf(" ");
-        screenGotoxy(i, MAXY);
-        printf(" ");
+        printf("%c", hbc);
+    }
+    screenGotoxy(MAXX, MINY);
+    printf("%c", BOX_UPRIGHT);
+
+    for (int i=MINY+1; i<MAXY; i++)
+    {
+        screenGotoxy(MINX, i);
+        printf("%c", vbc);
+        screenGotoxy(MAXX, i);
+        printf("%c", vbc);
     }
 
-    for (int i = MINY + 1; i < MAXY; i++) {
-        screenGotoxy(MINX, i);
-        printf(" ");
-        screenGotoxy(MAXX, i);
-        printf(" ");
+    screenGotoxy(MINX, MAXY);
+    printf("%c", BOX_DWNLEFT);
+    for (int i=MINX+1; i<MAXX; i++)
+    {
+        screenGotoxy(i, MAXY);
+        printf("%c", hbc);
     }
+    screenGotoxy(MAXX, MAXY);
+    printf("%c", BOX_DWNRIGHT);
+
+    screenBoxDisable();
+
 }
 
 void screenInit(int drawBorders)
@@ -58,7 +80,7 @@ void screenSetColor( screenColor fg, screenColor bg)
     if ( fg > LIGHTGRAY )
     {
         atr[1] = '1';
-    fg -= 8;
+        fg -= 8;
     }
 
     printf("%s%s%d;%dm", ESC, atr, fg+30, bg+40);
