@@ -1,127 +1,157 @@
 #include <stdio.h>
-#include <stdlib.h> // Biblioteca para funções de aleatoriedade
-#include <string.h> // Biblioteca para manipulação de strings
-#include <unistd.h> // Para usar a função usleep()
-#include <time.h>   // Biblioteca para funções de tempo (necessária para srand e time)
-#include "screen.h" // Inclui a biblioteca de funções de tela
-#include "keyboard.h" // Inclui a biblioteca de funções de teclado
-#include "timer.h" // Inclui a biblioteca de funções de temporizador
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <time.h>
+#include "screen.h"
+#include "keyboard.h"
+#include "timer.h"
 
 #define ASTEROID_CHAR '*' // Caractere que representa o asteroide
 
-// Definição da struct para armazenar coordenadas
 struct pos {
     int x;
     int y;
 };
 
-struct pos textPos = {34, 12}; // Coordenadas iniciais do texto
-int incX = 1, incY = 1; // Incrementos para o movimento do texto
+struct pos textPos = {34, 12};
+int incX = 1, incY = 1;
 
-struct pos shipPos = {1, 12}; // Coordenada inicial da nave
-char shipChar = '>'; // Caractere que representa a nave
+struct pos shipPos = {1, 12};
+char shipMatrix[3][5] = {
+    {' ', '/', '_', '\\', ' '},
+    {'<', ' ', ' ', ' ', '>'},
+    {' ', '\\', '_', '/', ' '}
+};
 
-struct pos asteroidPos = {MAXX - 7, 12}; // Coordenada inicial do asteroide
+struct pos asteroidPos = {MAXX - 7, 12};
+char asteroidMatrix[3][5] = {
+    {' ', '*', '*', '*', ' '},
+    {'*', '*', '*', '*', '*'},
+    {' ', '*', '*', '*', ' '}
+};
 
-int asteroidCounter = 0; // Contador de vezes que o asteroide chega à extremidade esquerda sem colidir com a nave
+int asteroidCounter = 0;
 
-// Função para imprimir a nave na posição atual
 void printShip() {
-    screenSetColor(GREEN, DARKGRAY); // Define as cores da nave
-    screenGotoxy(MINX + shipPos.x, shipPos.y); // Move o cursor para a posição da nave
-    printf("%c", shipChar); // Imprime o caractere da nave
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 5; j++) {
+            screenSetColor(GREEN, DARKGRAY);
+            screenGotoxy(MINX + shipPos.x + j, shipPos.y + i);
+            printf("%c", shipMatrix[i][j]);
+        }
+    }
 }
 
-// Função para limpar a nave da posição atual
 void clearShip() {
-    // Limpa apenas a área ocupada pela nave
-    screenGotoxy(MINX + shipPos.x, shipPos.y);
-    printf(" ");
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 5; j++) {
+            screenGotoxy(MINX + shipPos.x + j, shipPos.y + i);
+            printf(" ");
+        }
+    }
 }
 
-// Função para imprimir o asteroide na posição atual
 void printAsteroid() {
-    screenSetColor(RED, DARKGRAY); // Define as cores do asteroide
-    screenGotoxy(MINX + asteroidPos.x, asteroidPos.y); // Move o cursor para a posição do asteroide
-    printf("%c", ASTEROID_CHAR); // Imprime o caractere do asteroide
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 5; j++) {
+            screenSetColor(RED, DARKGRAY);
+            screenGotoxy(MINX + asteroidPos.x + j, asteroidPos.y + i);
+            printf("%c", asteroidMatrix[i][j]);
+        }
+    }
 }
 
-// Função para limpar o asteroide da posição atual
 void clearAsteroid() {
-    // Limpa apenas a área ocupada pelo asteroide
-    screenGotoxy(MINX + asteroidPos.x, asteroidPos.y);
-    printf(" ");
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 5; j++) {
+            screenGotoxy(MINX + asteroidPos.x + j, asteroidPos.y + i);
+            printf(" ");
+        }
+    }
 }
 
-// Função para imprimir o contador no canto superior direito
 void printCounter() {
-    screenSetColor(YELLOW, DARKGRAY); // Define as cores do contador
-    screenGotoxy(MAXX - 22, MINY + 1); // Move o cursor para o canto superior direito
-    printf("%d", asteroidCounter); // Imprime o contador
+    screenSetColor(YELLOW, DARKGRAY);
+    screenGotoxy(MAXX - 22, MINY + 1);
+    printf("%d", asteroidCounter);
 }
+
+int checkCollision() {
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 5; j++) {
+            int shipX = shipPos.x + j;
+            int shipY = shipPos.y + i;
+            int asteroidX = asteroidPos.x + j;
+            int asteroidY = asteroidPos.y + i;
+
+            if (shipX >= asteroidPos.x && shipX < asteroidPos.x + 5 &&
+                shipY >= asteroidPos.y && shipY < asteroidPos.y + 3) {
+                return 1; // Colisão detectada
+            }
+        }
+    }
+    return 0; // Nenhuma colisão
+}
+
 
 int main() {
-    static int ch = 0; // Variável para armazenar o código da tecla pressionada
+    static int ch = 0;
 
-    srand(time(NULL)); // Inicializa a semente do gerador de números aleatórios
+    srand(time(NULL));
+    screenInit(1);
+    keyboardInit();
+    timerInit(50);
 
-    screenInit(1); // Inicializa a tela com bordas
-    keyboardInit(); // Inicializa o teclado
-    timerInit(50); // Inicializa o temporizador com atraso de 50 milissegundos
+    printShip();
+    printAsteroid();
+    screenUpdate();
 
-    printShip(); // Imprime a nave na posição inicial
-    printAsteroid(); // Imprime o asteroide na posição inicial
-    screenUpdate(); // Atualiza a tela
-
-    while (ch != 10) // Enquanto a tecla 'Enter' não for pressionada
-    {
-        // Verifica se uma tecla foi pressionada
+    while (ch != 10) {
         if (keyhit()) {
-            ch = readch(); // Lê o código da tecla pressionada
-            if (ch == 'w' || ch == 'W') { // Se a tecla é 'W', move a nave para cima
-                if (shipPos.y > MINY + 1) { // Garante que a nave não saia da tela
-                    clearShip(); // Limpa a posição atual da nave
-                    shipPos.y--; // Move a nave para cima
-                    printShip(); // Imprime a nave na nova posição
+            ch = readch();
+            if (ch == 'w' || ch == 'W') {
+                if (shipPos.y > MINY + 1) {
+                    clearShip();
+                    shipPos.y--;
+                    printShip();
                 }
-            } else if (ch == 's' || ch == 'S') { // Se a tecla é 'S', move a nave para baixo
-                if (shipPos.y < MAXY - 1) { // Garante que a nave não saia da tela
-                    clearShip(); // Limpa a posição atual da nave
-                    shipPos.y++; // Move a nave para baixo
-                    printShip(); // Imprime a nave na nova posição
+            } else if (ch == 's' || ch == 'S') {
+                if (shipPos.y < MAXY - 3) {
+                    clearShip();
+                    shipPos.y++;
+                    printShip();
                 }
             }
-            screenUpdate(); // Atualiza a tela
+            screenUpdate();
         }
 
-        // Move o asteroide da direita para a esquerda
-        clearAsteroid(); // Limpa a posição atual do asteroide
-        if (asteroidPos.x > MINX + 1) { // Garante que o asteroide não saia da tela
-            asteroidPos.x--; // Move o asteroide para a esquerda
-            printAsteroid(); // Imprime o asteroide na nova posição
-            screenUpdate(); // Atualiza a tela
+        clearAsteroid();
+        if (asteroidPos.x > MINX + 1) {
+            asteroidPos.x--;
+            printAsteroid();
+            screenUpdate();
         } else {
-            // Reposiciona o asteroide para a posição inicial
             asteroidPos.x = MAXX - 7;
-            // Gera uma nova coordenada y aleatória para o asteroide
             asteroidPos.y = MINY + 1 + rand() % (MAXY - MINY - 2);
-            // Incrementa o contador de asteroide se não houver colisão com a nave
             asteroidCounter++;
-            printCounter(); // Atualiza o contador na tela
+            printCounter();
         }
 
-        // Verifica se houve colisão com a nave
-        if (shipPos.x == asteroidPos.x && shipPos.y == asteroidPos.y) {
-            printf("Game Over!\n");
+        if (checkCollision()) {
+            screenSetColor(YELLOW, RED);
+            screenGotoxy((MAXX - 13) / 2, (MAXY - 1) / 2);
+            printf("Game Over!");
+            screenUpdate();
             break;
         }
 
-        usleep(50000); // Pausa o programa por 50 milissegundos
+        usleep(50000);
     }
 
-    keyboardDestroy(); // Restaura as configurações originais do teclado
-    screenDestroy(); // Restaura a tela ao estado normal
-    timerDestroy(); // Destrói o temporizador
+    keyboardDestroy();
+    screenDestroy();
+    timerDestroy();
 
-    return 0; // Finaliza o programa
+    return 0;
 }
