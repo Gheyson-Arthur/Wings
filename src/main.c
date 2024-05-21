@@ -8,6 +8,7 @@
 #include "timer.h"
 
 #define ASTEROID_CHAR '*' // Caractere que representa o asteroide
+#define MAX_ASTEROIDS 3   // Número máximo de asteroides
 
 struct pos {
     int x;
@@ -24,14 +25,26 @@ char shipMatrix[3][5] = {
     {' ', '\\', '_', '/', ' '}
 };
 
-struct pos asteroidPos = {MAXX - 7, 12};
-char asteroidMatrix[3][5] = {
-    {' ', '*', '*', '*', ' '},
-    {'*', '*', '*', '*', '*'},
-    {' ', '*', '*', '*', ' '}
+struct asteroid {
+    struct pos pos;
+    char matrix[3][5];
 };
 
+struct asteroid asteroids[MAX_ASTEROIDS];
+
 int asteroidCounter = 0;
+
+void initAsteroids() {
+    for (int k = 0; k < 3; k++) {
+        asteroids[k].pos.x = MAXX - 6; // Ajuste conforme necessário para evitar sair da tela
+        asteroids[k].pos.y = MINY + 1 + rand() % (MAXY - MINY - 4); // Ajuste conforme necessário para evitar sair da tela
+        memcpy(asteroids[k].matrix, (char[3][5]) {
+            {' ', '*', '*', '*', ' '},
+            {'*', '*', '*', '*', '*'},
+            {' ', '*', '*', '*', ' '}
+        }, sizeof(asteroids[k].matrix));
+    }
+}
 
 void printShip() {
     for (int i = 0; i < 3; i++) {
@@ -52,21 +65,25 @@ void clearShip() {
     }
 }
 
-void printAsteroid() {
-    for (int i = 0; i < 3; i++) {
-        for (int j = 0; j < 5; j++) {
-            screenSetColor(RED, DARKGRAY);
-            screenGotoxy(MINX + asteroidPos.x + j, asteroidPos.y + i);
-            printf("%c", asteroidMatrix[i][j]);
+void printAsteroids() {
+    for (int k = 0; k < 3; k++) {
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 5; j++) {
+                screenSetColor(RED, DARKGRAY);
+                screenGotoxy(MINX + asteroids[k].pos.x + j, asteroids[k].pos.y + i);
+                printf("%c", asteroids[k].matrix[i][j]);
+            }
         }
     }
 }
 
-void clearAsteroid() {
-    for (int i = 0; i < 3; i++) {
-        for (int j = 0; j < 5; j++) {
-            screenGotoxy(MINX + asteroidPos.x + j, asteroidPos.y + i);
-            printf(" ");
+void clearAsteroids() {
+    for (int k = 0; k < 3; k++) {
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 5; j++) {
+                screenGotoxy(MINX + asteroids[k].pos.x + j, asteroids[k].pos.y + i);
+                printf(" ");
+            }
         }
     }
 }
@@ -78,22 +95,23 @@ void printCounter() {
 }
 
 int checkCollision() {
-    for (int i = 0; i < 3; i++) {
-        for (int j = 0; j < 5; j++) {
-            int shipX = shipPos.x + j;
-            int shipY = shipPos.y + i;
-            int asteroidX = asteroidPos.x + j;
-            int asteroidY = asteroidPos.y + i;
+    for (int k = 0; k < 3; k++) {
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 5; j++) {
+                int shipX = shipPos.x + j;
+                int shipY = shipPos.y + i;
+                int asteroidX = asteroids[k].pos.x + j;
+                int asteroidY = asteroids[k].pos.y + i;
 
-            if (shipX >= asteroidPos.x && shipX < asteroidPos.x + 5 &&
-                shipY >= asteroidPos.y && shipY < asteroidPos.y + 3) {
-                return 1; // Colisão detectada
+                if (shipX >= asteroids[k].pos.x && shipX < asteroids[k].pos.x + 5 &&
+                    shipY >= asteroids[k].pos.y && shipY < asteroids[k].pos.y + 3) {
+                    return 1; // Colisão detectada
+                }
             }
         }
     }
     return 0; // Nenhuma colisão
 }
-
 
 int main() {
     static int ch = 0;
@@ -103,8 +121,9 @@ int main() {
     keyboardInit();
     timerInit(50);
 
+    initAsteroids();
     printShip();
-    printAsteroid();
+    printAsteroids();
     screenUpdate();
 
     while (ch != 10) {
@@ -126,17 +145,19 @@ int main() {
             screenUpdate();
         }
 
-        clearAsteroid();
-        if (asteroidPos.x > MINX + 1) {
-            asteroidPos.x--;
-            printAsteroid();
-            screenUpdate();
-        } else {
-            asteroidPos.x = MAXX - 7;
-            asteroidPos.y = MINY + 1 + rand() % (MAXY - MINY - 2);
-            asteroidCounter++;
-            printCounter();
+        clearAsteroids();
+        for (int k = 0; k < 3; k++) {
+            if (asteroids[k].pos.x > MINX + 1) {
+                asteroids[k].pos.x--;
+            } else {
+                asteroids[k].pos.x = MAXX - 6;
+                asteroids[k].pos.y = MINY + 1 + rand() % (MAXY - MINY - 4);
+                asteroidCounter++;
+                printCounter();
+            }
         }
+        printAsteroids();
+        screenUpdate();
 
         if (checkCollision()) {
             screenSetColor(YELLOW, RED);
