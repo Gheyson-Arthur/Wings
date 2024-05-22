@@ -9,45 +9,49 @@
 
 <p align="center">
   <img
-    src="https://img.shields.io/github/repo-size/Sofia-Saraiva/Semester3-CESAR-School?style=flat"
+    src="https://img.shields.io/github/repo-size/WingsPIF/Wings?style=flat"
     alt="Repository Size"
   />
   <img
-    src="https://img.shields.io/github/languages/count/Sofia-Saraiva/Semester3-CESAR-School?style=flat&logo=python"
+    src="https://img.shields.io/github/languages/count/WingsPIF/Wings?style=flat&logo=python"
     alt="Language Count"
   />
   <img
-    src="https://img.shields.io/github/commit-activity/t/Sofia-Saraiva/Semester3-CESAR-School?style=flat&logo=github"
+    src="https://img.shields.io/github/commit-activity/t/WingsPIF/Wings?style=flat&logo=github"
     alt="Commit Activity"
   />
 </p>
 
+
 ## 📄 Descrição
 
-Wings é um jogo 2D feito em C, no qual controlamos uma nave capaz de destruir asteróides que entram em nosso caminho. Com jogabilidade fácil e interativa, devemos estar atentos ao posicionamento de nossa nave e à rapidez que os asteróides se aproximam.
+Wings é um jogo 2D feito em C, no qual controlamos uma nave com intuito de desviar de asteróides que entram em nosso caminho. Com jogabilidade fácil e interativa, devemos estar atentos ao posicionamento de nossa nave e à rapidez que os asteróides se aproximam.
 
 ## 🎲 Objetivo do Jogo
 
-Destruir o máximo de asteróides possível! Dessa forma, conquistando pontos ao longo da fase e subindo no Ranking de Piloto.
+Desviar do maior número possível de asteróides! Dessa forma, conquistando pontos ao longo da fase e subindo no Ranking de Piloto.
 
 ## 🕹️ Como Jogar
 
-Com gameplay simples, no Wings basta se movimentar utilizando o 'W' e 'S' para alcançar todos os espaços da tela a fim de ser capaz de destruir todos os asteróides que se encaminham em sua direção.
+Com gameplay simples, no Wings basta se movimentar utilizando o 'W' e 'S' para alcançar todos os espaços da tela a fim de desviar de todos os asteróides que se encaminham em sua direção.
 
 ## ♟️ Executando o Jogo
 
-Para executar o Pong2, siga estas etapas:
+Para executar o Wings, siga estas etapas:
 
 1. Clone este repositório em sua máquina:
-   `Lorem Ipsum has been the industry's standard`
-
+   `https://github.com/WingsPIF/Wings.git`
+   
+2. Em seu terminal, navegue para o diretório do jogo:
+    `cd Wings/src`
+   
 3. Compile o programa:
-   `Lorem Ipsum has been the industry's standard`
+   `gcc -o Wings src/main.c src/keyboard.c src/screen.c src/timer.c -Iincludes`
 
 4. Rode o programa:
-   `Lorem Ipsum has been the industry's standardn`
+   `./Wings`
 
-5. Divirta-se jogando Pong2 com seus amigos!
+Agora basta aproveitar o Wings!
 
 ## 👩‍💻 Membros
 
