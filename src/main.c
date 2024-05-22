@@ -24,7 +24,7 @@ struct pos {
 };
 
 struct player {
-    char *name;
+    char name[50];
     int score;
 };
 
@@ -185,51 +185,61 @@ void saveScore(struct player *p) {
     }
 }
 
-void displayTopScores() {
-    struct player topScores[MAX_TOP_SCORES];
-    for (int i = 0; i < MAX_TOP_SCORES; i++) {
-        topScores[i].name = NULL;
-        topScores[i].score = 0;
-    }
-
-    FILE *file = fopen(SCORE_FILE, "r");
-    if (file != NULL) {
-        char line[100];
-        int scoreIndex = 0; // Índice para controlar o número de pontuações lidas
-        while (fgets(line, sizeof(line), file) != NULL && scoreIndex < MAX_TOP_SCORES) {
-            printf("Debug: Line read from file: %s\n", line); // Debugging: Print the line read from the file
-            struct player tempPlayer;
-            tempPlayer.name = (char *)malloc(50 * sizeof(char));
-            if (tempPlayer.name == NULL) {
-                fprintf(stderr, "Memory allocation failed.\n");
-                exit(1);
-            }
-            int result = sscanf(line, "Player: %49s, Score: %d", tempPlayer.name, &tempPlayer.score);
-
-            // Verifica se a leitura foi bem-sucedida
-            if (result == 2) {
-                topScores[scoreIndex++] = tempPlayer;
-            } else {
-                free(tempPlayer.name); // Libera a memória alocada para o nome
+void sortScores(struct player *scores, int count) {
+    struct player temp;
+    for (int i = 0; i < count - 1; i++) {
+        for (int j = i + 1; j < count; j++) {
+            if (scores[i].score < scores[j].score) {
+                temp = scores[i];
+                scores[i] = scores[j];
+                scores[j] = temp;
             }
         }
-        fclose(file);
-
-        screenClear();
-        screenSetColor(YELLOW, DARKGRAY);
-        screenGotoxy((MAXX - 9) / 2, MINY + 1);
-        printf("Top Scores");
-        for (int i = 0; i < MAX_TOP_SCORES && topScores[i].name != NULL; i++) {
-            screenGotoxy((MAXX - 20) / 2, MINY + 3 + i);
-            printf("%d. %s - %d", i + 1, topScores[i].name, topScores[i].score);
-            free(topScores[i].name);
-        }
-        screenUpdate();
-        sleep(5); // Pause for 5 seconds to allow the player to see the top scores
-    } else {
-        printf("Error: Unable to open %s for reading.\n", SCORE_FILE);
     }
 }
+
+void displayFirstFiveLines() {
+    FILE *file = fopen(SCORE_FILE, "r");
+    if (file == NULL) {
+        file = fopen(SCORE_FILE, "w"); // Create file if it does not exist
+        if (file == NULL) {
+            printf("Error: Unable to create %s.\n", SCORE_FILE);
+            return;
+        }
+        fclose(file);
+        file = fopen(SCORE_FILE, "r"); // Reopen in read mode
+    }
+
+    struct player scores[100];
+    int count = 0;
+    char name[50]; // Temporary variable to hold the player name
+    int score; // Temporary variable to hold the player score
+
+    while (fscanf(file, "Player: %49s Score: %d\n", name, &score) == 2) {
+        strcpy(scores[count].name, name);
+        scores[count].score = score;
+        count++;
+    }
+    fclose(file);
+
+    sortScores(scores, count);
+
+    screenClear();
+    screenSetColor(YELLOW, DARKGRAY);
+    screenGotoxy((MAXX - 20) / 2, MINY + 1);
+    printf("PÓDIO DE SCORES");
+    int y = MINY + 3;
+
+    for (int i = 0; i < count && i < 5; i++) {
+        screenGotoxy((MAXX - 50) / 2, y++);
+        printf("Player: %s, Score: %d", scores[i].name, scores[i].score);
+    }
+
+    screenUpdate();
+    sleep(5); // Pause for 5 seconds to allow the player to see the lines
+}
+
+
 
 void displayWelcomeScreen() {
     screenClear();
@@ -260,7 +270,7 @@ int main() {
     screenInit(0);
     keyboardInit();
 
-    currentPlayer.name = strdup(playerName);
+    strcpy(currentPlayer.name, playerName);
     currentPlayer.score = 0;
 
     srand(time(NULL));
@@ -304,8 +314,7 @@ int main() {
     currentPlayer.score = asteroidCounter;
     saveScore(&currentPlayer);
 
-    free(currentPlayer.name);
-    displayTopScores();
+    displayFirstFiveLines(); // Display the first 5 lines
 
     keyboardDestroy();
     screenDestroy();
