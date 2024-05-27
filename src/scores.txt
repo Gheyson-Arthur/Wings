@@ -27,3 +27,6 @@ Player: asd, Score: 0
 Player: xxxxxxxxxx, Score: 0
 Player: joao, Score: 0
 Player: arthur, Score: 14
+Player: arthass, Score: 14
+Player: as, Score: 0
+Player: vcvb, Score: 7
