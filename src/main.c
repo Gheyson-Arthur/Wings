@@ -7,7 +7,6 @@
 #include "keyboard.h"
 #include "timer.h"
 
-#define ASTEROID_CHAR '*' // Caractere que representa o asteroide
 #define MAX_ASTEROIDS 5   // Número máximo de asteroides
 #define SHIP_WIDTH 5
 #define SHIP_HEIGHT 3
@@ -37,8 +36,13 @@ char shipMatrix[SHIP_HEIGHT][SHIP_WIDTH] = {
 
 struct asteroid {
     struct pos pos;
-    char matrix[ASTEROID_HEIGHT][ASTEROID_WIDTH];
     int active;
+};
+
+char asteroidPattern[ASTEROID_HEIGHT][ASTEROID_WIDTH] = {
+    {' ', '*', '*', '*', ' '},
+    {'*', '*', '*', '*', '*'},
+    {' ', '*', '*', '*', ' '}
 };
 
 struct asteroid asteroids[MAX_ASTEROIDS];
@@ -47,20 +51,15 @@ struct player currentPlayer;
 int asteroidCounter = 0;
 int asteroidSpawnTimer = 0;
 
-void initAsteroids() {
+void inicializarAsteroides() {
     for (int k = 0; k < MAX_ASTEROIDS; k++) {
         asteroids[k].pos.x = MAXX - 6;
         asteroids[k].pos.y = MINY + 1 + rand() % (MAXY - MINY - 4);
-        memcpy(asteroids[k].matrix, (char[ASTEROID_HEIGHT][ASTEROID_WIDTH]) {
-            {' ', '*', '*', '*', ' '},
-            {'*', '*', '*', '*', '*'},
-            {' ', '*', '*', '*', ' '}
-        }, sizeof(asteroids[k].matrix));
         asteroids[k].active = 0;
     }
 }
 
-void activateAsteroid() {
+void ativarAsteroide() {
     for (int k = 0; k < MAX_ASTEROIDS; k++) {
         if (!asteroids[k].active) {
             asteroids[k].pos.x = MAXX - 6;
@@ -71,7 +70,7 @@ void activateAsteroid() {
     }
 }
 
-void printShip() {
+void imprimirNave() {
     screenSetColor(GREEN, DARKGRAY);
     for (int i = 0; i < SHIP_HEIGHT; i++) {
         for (int j = 0; j < SHIP_WIDTH; j++) {
@@ -81,7 +80,7 @@ void printShip() {
     }
 }
 
-void clearShip() {
+void limparNave() {
     for (int i = 0; i < SHIP_HEIGHT; i++) {
         for (int j = 0; j < SHIP_WIDTH; j++) {
             screenGotoxy(MINX + shipPos.x + j, shipPos.y + i);
@@ -90,21 +89,21 @@ void clearShip() {
     }
 }
 
-void printAsteroids() {
+void imprimirAsteroides() {
     screenSetColor(RED, DARKGRAY);
     for (int k = 0; k < MAX_ASTEROIDS; k++) {
         if (asteroids[k].active) {
             for (int i = 0; i < ASTEROID_HEIGHT; i++) {
                 for (int j = 0; j < ASTEROID_WIDTH; j++) {
                     screenGotoxy(MINX + asteroids[k].pos.x + j, asteroids[k].pos.y + i);
-                    printf("%c", asteroids[k].matrix[i][j]);
+                    printf("%c", asteroidPattern[i][j]);
                 }
             }
         }
     }
 }
 
-void clearAsteroids() {
+void limparAsteroides() {
     for (int k = 0; k < MAX_ASTEROIDS; k++) {
         if (asteroids[k].active) {
             for (int i = 0; i < ASTEROID_HEIGHT; i++) {
@@ -117,13 +116,13 @@ void clearAsteroids() {
     }
 }
 
-void printCounter() {
+void imprimirContador() {
     screenSetColor(YELLOW, DARKGRAY);
     screenGotoxy(MAXX - 22, MINY + 1);
     printf("%d", asteroidCounter);
 }
 
-int checkCollision() {
+int verificarColisao() {
     for (int k = 0; k < MAX_ASTEROIDS; k++) {
         if (asteroids[k].active) {
             for (int i = 0; i < SHIP_HEIGHT; i++) {
@@ -144,7 +143,7 @@ int checkCollision() {
     return 0; // Nenhuma colisão
 }
 
-void updateAsteroids() {
+void atualizarAsteroides() {
     for (int k = 0; k < MAX_ASTEROIDS; k++) {
         if (asteroids[k].active) {
             if (asteroids[k].pos.x > MINX + 1) {
@@ -152,30 +151,30 @@ void updateAsteroids() {
             } else {
                 asteroids[k].active = 0;
                 asteroidCounter++;
-                printCounter();
+                imprimirContador();
             }
         }
     }
 }
 
-void handleInput(int ch) {
+void tratarEntrada(int ch) {
     if (ch == 'w' || ch == 'W') {
         if (shipPos.y > MINY + 1) {
-            clearShip();
+            limparNave();
             shipPos.y--;
-            printShip();
+            imprimirNave();
         }
     } else if (ch == 's' || ch == 'S') {
         if (shipPos.y < MAXY - SHIP_HEIGHT) {
-            clearShip();
+            limparNave();
             shipPos.y++;
-            printShip();
+            imprimirNave();
         }
     }
     screenUpdate();
 }
 
-void saveScore(struct player *p) {
+void salvarPontuacao(struct player *p) {
     FILE *file = fopen(SCORE_FILE, "a");
     if (file != NULL) {
         fprintf(file, "Player: %s, Score: %d\n", p->name, p->score);
@@ -185,7 +184,7 @@ void saveScore(struct player *p) {
     }
 }
 
-void sortScores(struct player *scores, int count) {
+void ordenarPontuacoes(struct player *scores, int count) {
     struct player temp;
     for (int i = 0; i < count - 1; i++) {
         for (int j = i + 1; j < count; j++) {
@@ -198,23 +197,30 @@ void sortScores(struct player *scores, int count) {
     }
 }
 
-void displayFirstFiveLines() {
+void exibirPrimeirasCincoPontuacoes() {
     FILE *file = fopen(SCORE_FILE, "r");
     if (file == NULL) {
-        file = fopen(SCORE_FILE, "w"); // Create file if it does not exist
+        file = fopen(SCORE_FILE, "w"); 
         if (file == NULL) {
             printf("Error: Unable to create %s.\n", SCORE_FILE);
             return;
         }
         fclose(file);
-        file = fopen(SCORE_FILE, "r"); // Reopen in read mode
+        file = fopen(SCORE_FILE, "r"); 
     }
 
-    struct player scores[100];
     int count = 0;
-    char name[50]; // Temporary variable to hold the player name
-    int score; // Temporary variable to hold the player score
+    char name[50]; 
+    int score; 
 
+    while (fscanf(file, "Player: %49s Score: %d\n", name, &score) == 2) {
+        count++;
+    }
+    rewind(file); 
+
+    struct player *scores = malloc(count * sizeof(struct player));
+
+    count = 0;
     while (fscanf(file, "Player: %49s Score: %d\n", name, &score) == 2) {
         strcpy(scores[count].name, name);
         scores[count].score = score;
@@ -222,7 +228,7 @@ void displayFirstFiveLines() {
     }
     fclose(file);
 
-    sortScores(scores, count);
+    ordenarPontuacoes(scores, count);
 
     screenClear();
     screenSetColor(YELLOW, DARKGRAY);
@@ -230,18 +236,26 @@ void displayFirstFiveLines() {
     printf("PÓDIO DE SCORES");
     int y = MINY + 3;
 
-    for (int i = 0; i < count && i < 5; i++) {
+    int maxScores;
+    if (count < MAX_TOP_SCORES) {
+        maxScores = count;
+    } else {
+        maxScores = MAX_TOP_SCORES;
+    }
+
+    for (int i = 0; i < maxScores; i++) {
         screenGotoxy((MAXX - 50) / 2, y++);
         printf("Player: %s, Score: %d", scores[i].name, scores[i].score);
     }
 
     screenUpdate();
-    sleep(5); // Pause for 5 seconds to allow the player to see the lines
+    sleep(5);
+
+    free(scores); 
 }
 
 
-
-void displayWelcomeScreen() {
+void exibirTelaBoasVindas() {
     screenClear();
     screenSetColor(YELLOW, DARKGRAY);
     screenGotoxy((MAXX - 20) / 2, MINY + 3);
@@ -251,22 +265,17 @@ void displayWelcomeScreen() {
     screenGotoxy((MAXX - 20) / 2, MINY + 7);
     printf(">");
     screenUpdate();
-    screenGotoxy((MAXX - 20) / 2 + 2, MINY + 7); // Move cursor to input position
+    screenGotoxy((MAXX - 20) / 2 + 2, MINY + 7); 
 }
 
 int main() {
     static int ch = 0;
 
-    timerInit(TIMER_INTERVAL);
+    exibirTelaBoasVindas();
 
-    displayWelcomeScreen();
-
-    char playerName[50];
-    if (scanf("%49s", playerName) != 1) {
-        fprintf(stderr, "Error reading player name.\n");
-        return 1;
-    }
-
+    char playerName[21];
+    scanf("%20s", playerName);
+    
     screenInit(0);
     keyboardInit();
 
@@ -274,47 +283,47 @@ int main() {
     currentPlayer.score = 0;
 
     srand(time(NULL));
-    screenClear(); // Clear the screen after reading the player's name
+    screenClear(); 
     screenSetColor(WHITE, BLACK);
-    initAsteroids();
-    printShip();
+    inicializarAsteroides();
+    imprimirNave();
     screenUpdate();
 
-    while (ch != 10) { // 10 is the ASCII code for Enter key
+    while (ch != 10) { 
         if (keyhit()) {
             ch = readch();
-            handleInput(ch);
+            tratarEntrada(ch);
         }
 
-        clearAsteroids();
-        updateAsteroids();
+        limparAsteroides();
+        atualizarAsteroides();
 
         if (asteroidSpawnTimer >= ASTEROID_SPAWN_INTERVAL) {
-            activateAsteroid();
+            ativarAsteroide();
             asteroidSpawnTimer = 0;
         } else {
             asteroidSpawnTimer++;
         }
 
-        printAsteroids();
+        imprimirAsteroides();
         screenUpdate();
 
-        if (checkCollision()) {
+        if (verificarColisao()) {
             screenSetColor(YELLOW, RED);
             screenGotoxy((MAXX - 13) / 2, (MAXY - 1) / 2);
             printf("Game Over!");
             screenUpdate();
-            sleep(3); // Pause for 3 seconds to allow the player to see the Game Over message
+            sleep(3); 
             break;
         }
 
-        usleep(TIMER_INTERVAL * 1000); // Convert milliseconds to microseconds
+        usleep(TIMER_INTERVAL * 1000); 
     }
 
     currentPlayer.score = asteroidCounter;
-    saveScore(&currentPlayer);
+    salvarPontuacao(&currentPlayer);
 
-    displayFirstFiveLines(); // Display the first 5 lines
+    exibirPrimeirasCincoPontuacoes(); 
 
     keyboardDestroy();
     screenDestroy();

@@ -16,3 +16,14 @@ Player: asddas, Score: 1
 Player: Gheyson, Score: 25
 Player: Gheyson, Score: 0
 Player: jioao, Score: 30
+Player: joao, Score: 9
+Player: jaoo, Score: 1
+Player: asdas, Score: 0
+Player: asdads, Score: 18
+Player: asdadsdasd, Score: 5
+Player: asdasd, Score: 14
+Player: bbbb, Score: 5
+Player: asd, Score: 0
+Player: xxxxxxxxxx, Score: 0
+Player: joao, Score: 0
+Player: arthur, Score: 14
