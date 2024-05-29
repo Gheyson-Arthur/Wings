@@ -179,9 +179,7 @@ void salvarPontuacao(struct player *p) {
     if (file != NULL) {
         fprintf(file, "Player: %s, Score: %d\n", p->name, p->score);
         fclose(file);
-    } else {
-        printf("Error: Unable to open %s for writing.\n", SCORE_FILE);
-    }
+    } 
 }
 
 void ordenarPontuacoes(struct player *scores, int count) {
