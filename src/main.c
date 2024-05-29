@@ -200,7 +200,7 @@ void exibirPrimeirasCincoPontuacoes() {
     if (file == NULL) {
         file = fopen(SCORE_FILE, "w"); 
         if (file == NULL) {
-            printf("Error: Unable to create %s.\n", SCORE_FILE);
+            printf("Erro em: %s.\n", SCORE_FILE);
             return;
         }
         fclose(file);
@@ -257,9 +257,9 @@ void exibirTelaBoasVindas() {
     screenClear();
     screenSetColor(YELLOW, DARKGRAY);
     screenGotoxy((MAXX - 20) / 2, MINY + 3);
-    printf("Welcome to Asteroid Game!");
+    printf("Bem vindos ao Asteroid Game!");
     screenGotoxy((MAXX - 20) / 2, MINY + 5);
-    printf("Enter your name: ");
+    printf("Insira seu nome: ");
     screenGotoxy((MAXX - 20) / 2, MINY + 7);
     printf(">");
     screenUpdate();
